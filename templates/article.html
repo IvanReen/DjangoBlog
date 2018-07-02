@@ -4,7 +4,7 @@
 {% block left_content %}
     {% for article in article_list %}
         <div class="postdate">
-        {#    <div class="month">{{ article.date_publish  | month_to_upper}}</div>#}
+            <div class="month">{{ article.date_publish  | date:'m'}}</div>
             <div class="date">{{ article.date_publish | date:'d' }}</div>
         </div>
         <div class="title">
