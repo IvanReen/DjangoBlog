@@ -14,6 +14,7 @@ class Article(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=64)
     content = models.TextField()
+    describe = models.CharField(max_length=50, default=None)
     author = models.CharField(max_length=24)
     date_publish = models.DateTimeField(auto_now=True)        # 时间
     click_count = models.IntegerField()         # 浏览
