@@ -34,7 +34,17 @@
 </header>
 <article>
     <div class="l_box f_l">
-        {% block left_content %}{% endblock %}
+        <div class="topnews">
+            {% for article in article_list %}
+            <div class="blogs">
+                <ul>
+                    <h3>{{ article.name }}</h3>
+                    <p class="autor"><span class="lm f_l">{% for tag in article.tag.all %}<a href="/">{{ tag.name }}</a>&nbsp;</span>{% endfor %}<span class="dtime f_l">{{ article.date_publish | date:'Y-m-d' }}</span><span class="viewnum f_r"><a href="/">浏览（{{ article.click_count }}）</a></span><span class="pingl f_r"><a href="/">评论（{{ article.comment_set.all.count }}）</a></span></p>
+                    <p>{{ article.content }}</p>
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
     </div>
     <div class="r_box f_r">
         <div class="tit01">
