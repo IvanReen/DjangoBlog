@@ -127,3 +127,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'mystatic'),
 )
+
+AUTH_USER_MODEL = 'blogapp.User_info'
