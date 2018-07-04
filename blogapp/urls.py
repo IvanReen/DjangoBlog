@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 
-from blogapp.views import index, To_Article_By_Category, To_Article_By_id, Register, Login, Logout, See_comment, Receive
+from blogapp.views import index, To_Article_By_Category, To_Article_By_id, Register, Login, Logout, See_comment, Receive, Labels
 
 app_name = 'blogapp'
 
@@ -12,5 +12,6 @@ urlpatterns = [
     path('login/', Login, name='login'),
     path('logout/', Logout, name='logout'),
     path('seecomment/', See_comment, name='articleinfo'),
-    path('Receive/', Receive, name='receive'),
+    path('receive/', Receive, name='receive'),
+    path('label/', Labels, name='label'),
 ]

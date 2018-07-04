@@ -7,32 +7,34 @@ from blogapp.models import *
 def index(request):
     category_list = Category.objects.all()
     article_list = Article.objects.all()
+    label_list = Label.objects.all()
     return render(request, 'index.html', locals())
 
-# 通过种类查博客
+# 通过种类查博客，并且获取种类，切换时显示
 def To_Article_By_Category(request):
-    aid = request.GET.get('cid')
     category_list = Category.objects.all()
+    aid = request.GET.get('cid')
     article_list = Article.objects.filter(tag_id=aid)
     cname = Category.objects.get(id=aid).name
     return render(request, 'index.html', locals())
 
 # 点击文章名显示文章信息
 def To_Article_By_id(request):
-    info_id = request.GET.get('id')
     category_list = Category.objects.all()
+    info_id = request.GET.get('id')
     article = Article.objects.filter(id=info_id)
     return render(request, 'article.html', locals())
 
 # 看评论
 def See_comment(request):
-    info_id = request.GET.get('id')
     category_list = Category.objects.all()
+    info_id = request.GET.get('id')
     article = Article.objects.get(id=info_id)
     try:
-        comment_list = Comment.objects.filter(isarticle=article.name)
+        comment_list = Comment.objects.filter(art=article)
+        print(comment_list)
     except Exception:
-        print("此文章没有评论")
+        msg = "此文章没有评论"
     finally:
         return render(request, 'article.html', locals())
 
@@ -66,18 +68,18 @@ def Logout(request):
 
 # 接收评论
 def Receive(request):
-    content = request.POST.get('content')
-    article_name = request.POST.get('aname')
-    user_name = request.POST.get('rname')
-    user_id = User_info.objects.get(username=user_name)
-    article = Article.objects.get(name=article_name)
-    print(content)
-    print(article_name)
-    Comment.objects.create(content=content, isarticle=article_name, user_info=user_id)
+    content = request.POST.get('content')   # 评论内容
+    aname = request.POST.get('aname')   # 文章id
+    rname = request.POST.get('rname')       # 用户名
+    user_id = User_info.objects.get(username=rname)    # 通过用户名找用户，给前台显示
+    Comment.objects.create(content=content, user_info=user_id, art_id=aname)  # 将评论记录在评论表中
+    return HttpResponseRedirect('/seecomment/?id='+aname)
+
+# 标签
+def Labels(request):
+    label_id = request.GET.get('lid')
+    labobj = Label.objects.get(id=label_id)
+    article_list = labobj.articles.all()
     category_list = Category.objects.all()
-    try:
-        comment_list = Comment.objects.filter(isarticle=article_name)
-    except Exception:
-        print("此文章没有评论")
-    finally:
-        return render(request, 'article.html', locals())
+    label_list = Label.objects.all()
+    return render(request, 'index.html', locals())
