@@ -1,15 +1,15 @@
 <div id="pagination">
     <ul id="pagination-flickr">
-        {% if article_list.has_previous %}
-        <li class="previous"><a href="">&laquo;上一页</a></li>
-        {% else %}
-        <li class="previous-off">&laquo;上一页</li>
-        {% endif %}
-        <li class="active">/</li>
-        {% if article_list.has_next %}
-        <li class="next"><a href="">下一页 &raquo;</a></li>
-        {% else %}
-        <li class="next-off">下一页 &raquo;</li>
-        {% endif %}
+    {% if article_list.has_previous %}
+        <li class="previous"><a href="{% url 'blogapp:index' %}?page={{ article_list.previous_page_number }}">&laquo;上一页</a></li>
+    {% else %}
+        <li class="previous-off"><a href="javascript:alert('已经是第一页了')">&laquo;上一页</a></li>
+    {% endif %}
+        <li class="active">{{ article_list.number }}/{{ paginator.num_pages }}</li>
+    {% if article_list.has_next %}
+        <li class="next"><a href="{% url 'blogapp:index' %}?page={{ article_list.next_page_number }}">下一页 &raquo;</a></li>
+    {% else %}
+        <li class="next-off"><a href="javascript:alert('已经是最后一页了')">下一页 &raquo;</a></li>
+    {% endif %}
     </ul>
 </div>

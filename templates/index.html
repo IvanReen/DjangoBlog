@@ -1,20 +1,24 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% block left_content %}
-{% include 'ad.html' %}
-<div class="topnews">
-    <h2>{% if aid %}{{ cname }}{% else %}最新文章
+    {% include 'ad.html' %}
+    <div class="topnews">
+        {% if cid %}
+            {% for c in cname %}
+            <h2>{{ c.name }}</h2>
+            {% endfor %}
+        {% else %}
+            <h2>最新文章</h2>
         {% endif %}
-    </h2>
-    {% for article in article_list %}
-    <div class="blogs">
-        <ul>
-            <h3><a href="{% url 'blog:articleinfo' %}?id={{ article.id }}">{{ article.name }}</a></h3>
-            <p>{{ article.describe }}</p>
-            <p class="autor"><span class="lm f_l"><a href="/">{{ article.tag.name }}</a>&nbsp;</span><span class="dtime f_l">{{ article.date_publish | date:'Y-m-d' }}</span><span class="viewnum f_r"><a href="/">浏览（{{ article.click_count }}）</a></span><span class="pingl f_r"><a href="/">评论（{{ article.comment_set.all.count }}）</a></span></p>
-        </ul>
+        {% for articles in article_list %}
+        <div class="blogs">
+            <ul>
+                <h3><a href="{% url 'blog:index' %}?id={{ articles.id }}">{{ articles.name }} </a></h3>
+                <p>{{ articles.describe }}</p>
+                <p class="autor"><span class="lm f_l">{% for tag in articles.tag.all %}<a href="/">{{ tag.name }}</a>&nbsp;</span>{% endfor %}<span class="dtime f_l">{{ articles.date_publish | date:'Y-m-d' }}</span><span class="viewnum f_r">浏览（<a href="/">{{ articles.click_count }}</a>）</span><span class="pingl f_r">评论（<a href="/">{{ articles.comment_set.all.count }}</a>）</span></p>
+            </ul>
+        </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-</div>
-{% include 'pagination.html' %}
+    {% include 'pagination.html' %}
 {% endblock %}

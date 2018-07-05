@@ -27,10 +27,17 @@ class Article(models.Model):
     def __str__(self):
         return self.name
 
+# 子评论
+class Children_com(models.Model):
+    content = models.CharField(max_length=1024)
+    date_publish = models.DateTimeField(auto_now_add=True)
+    children_user = models.ForeignKey(User_info, on_delete=models.CASCADE)
+
 # 创建评论表
 class Comment(models.Model):
     content = models.CharField(max_length=1024)                          # 评论内容
     date_publish = models.DateTimeField(auto_now_add=True)               # 评论时间
+    children_comment = models.ForeignKey(Children_com, on_delete=models.CASCADE)
     user_info = models.ForeignKey(User_info, on_delete=models.CASCADE)   # 评论用户的信息
     art = models.ForeignKey(Article, on_delete=models.CASCADE)
     def __str__(self):

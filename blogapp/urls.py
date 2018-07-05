@@ -1,17 +1,13 @@
 from django.urls import path, re_path
-
-from blogapp.views import index, To_Article_By_Category, To_Article_By_id, Register, Login, Logout, See_comment, Receive, Labels
+from blogapp.views import index, register, login, Logout, receive, publish
 
 app_name = 'blogapp'
 
 urlpatterns = [
-    re_path('^$', index, name= 'index'),
-    path('article/', To_Article_By_Category, name= 'article'),
-    path('articleinfo/', To_Article_By_id, name='articleinfo'),
-    path('register/', Register, name='register'),
-    path('login/', Login, name='login'),
+    path('', index, name='index'),
+    path('register/', register, name='register'),
+    path('login/', login, name='login'),
     path('logout/', Logout, name='logout'),
-    path('seecomment/', See_comment, name='articleinfo'),
-    path('receive/', Receive, name='receive'),
-    path('label/', Labels, name='label'),
+    path('receive/', receive, name='receive'),
+    path('publish/', publish, name='publish'),
 ]

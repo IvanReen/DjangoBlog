@@ -11,13 +11,10 @@
 		<div class="header" >
 			<h1>Login!</h1>
 		</div>
-        {% if not user %}
-		<p>用户名或密码错误</p>
-        {% endif %}
+		<p></p>
 			<form action="{% url 'blog:login' %}" method="post">
-                
 				<ul class="right-form">
-					<h2>Login:</h2>
+					<h2>用户登录:</h2>
 					<li><input type="text" name="username" placeholder="Username" required/></li>
 					<li><input type="password" name="password" placeholder="Password" required/></li>
                     <input type="submit" value="Login" >
