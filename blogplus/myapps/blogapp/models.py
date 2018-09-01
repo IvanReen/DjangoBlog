@@ -6,9 +6,10 @@ import logging
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.contrib.sites.models import Site
-from DjangoBlog.utils import cache_decorator, cache
 from django.utils.functional import cached_property
 from django.utils.timezone import now
+
+from blogplus.utils import cache_decorator, cache
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class BaseModel(models.Model):
     last_mod_time = models.DateTimeField('修改时间', default=now)
 
     def save(self, *args, **kwargs):
-        from DjangoBlog.blog_signals import article_save_signal
+        from blogplus.blog_signals import article_save_signal
         if not self.slug or self.slug == 'no-slug' or not self.id:
             slug = self.title if 'title' in self.__dict__ else self.name
             self.slug = slugify(slug)
@@ -266,5 +267,4 @@ class BlogSettings(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        from DjangoBlog.utils import cache
         cache.clear()

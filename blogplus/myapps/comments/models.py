@@ -1,8 +1,9 @@
 from django.db import models
 from django.conf import settings
-from blog.models import Article
+
 from django.utils.timezone import now
 
+from blogapp.models import Article
 
 # Create your models here.
 

@@ -15,6 +15,10 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# 引入自创建的Sources Roots目录
+sys.path.insert(0, os.path.join(BASE_DIR, 'myexts'))
+sys.path.insert(1, os.path.join(BASE_DIR, 'myapps'))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
@@ -48,15 +52,15 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'raven.contrib.django.raven_compat',
-    'pagedown',
-    'haystack',
-    'blog',
+    # 'pagedown',
+    # 'haystack',
+    'blogapp',
     'accounts',
     'comments',
     'oauth',
     'servermanager',
     'owntracks',
-    'compressor'
+    # 'compressor'
 ]
 
 MIDDLEWARE = [
@@ -74,7 +78,7 @@ MIDDLEWARE = [
     'blog.middleware.OnlineMiddleware'
 ]
 
-ROOT_URLCONF = 'DjangoBlog.urls'
+ROOT_URLCONF = 'blogapp.urls'
 
 TEMPLATES = [
     {
@@ -87,7 +91,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'blog.context_processors.seo_processor'
+                'blogapp.context_processors.seo_processor'
             ],
         },
     },
