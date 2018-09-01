@@ -1,6 +1,6 @@
 # DjangoBlog
 
-基于`python3.5`和`Django2.0`的博客。   
+基于`python3.5`和`Django1.11`的博客。   
 
 [![Build Status](https://travis-ci.org/liangliangyy/DjangoBlog.svg?branch=master)](https://travis-ci.org/liangliangyy/DjangoBlog) [![Coverage Status](https://coveralls.io/repos/github/liangliangyy/DjangoBlog/badge.svg?branch=master)](https://coveralls.io/github/liangliangyy/DjangoBlog?branch=master) [![Requirements Status](https://requires.io/github/liangliangyy/DjangoBlog/requirements.svg?branch=master)](https://requires.io/github/liangliangyy/DjangoBlog/requirements/?branch=master)  [![license](https://img.shields.io/github/license/liangliangyy/djangoblog.svg)]() [![GitHub release](https://img.shields.io/github/release/liangliangyy/djangoblog.svg)]() [![python3.5](https://img.shields.io/badge/python-3.5-brightgreen.svg)]() [![django1.10](https://img.shields.io/badge/django-2.0-brightgreen.svg)]()     
 
@@ -94,4 +94,4 @@ windows电脑：
 [更多配置介绍](/bin/config.md)
  ## 问题相关
 
- 有任何问题欢迎提Issue,或者将问题描述发送至我邮箱 `liangliangyy#gmail.com`.我会尽快解答.推荐提交Issue方式.
+ 有任何问题欢迎提Issue,或者将问题描述发送至我邮箱 `small_pupil@126.com`.我会尽快解答.推荐提交Issue方式.
