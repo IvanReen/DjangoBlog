@@ -2,16 +2,6 @@
 # encoding: utf-8
 
 
-"""
-@version: ??
-@author: liangliangyy
-@license: MIT Licence
-@contact: liangliangyy@gmail.com
-@site: https://www.lylinux.org/
-@software: PyCharm
-@file: context_processors.py
-@time: 2016/11/6 下午4:23
-"""
 from .models import Category, Article, Tag
 from django.conf import settings
 from comments.models import Comment

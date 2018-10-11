@@ -1,18 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-
-"""
-@version: ??
-@author: liangliangyy
-@license: MIT Licence
-@contact: liangliangyy@gmail.com
-@site: https://www.lylinux.org/
-@software: PyCharm
-@file: middleware.py
-@time: 2017/1/19 上午12:36
-"""
-
 import time
 from ipware.ip import get_real_ip
 from DjangoBlog.utils import cache
