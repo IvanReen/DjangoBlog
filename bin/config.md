@@ -25,22 +25,22 @@ OAHUTH = {
     'sina': {
         'appkey': os.environ.get('SINA_APP_KEY'),
         'appsecret': os.environ.get('SINA_APP_SECRET'),
-        'callbackurl': 'http://www.lylinux.net/oauth/authorize?type=weibo'
+        'callbackurl': 'http://www.rcwlinux.net/oauth/authorize?type=weibo'
     },
     'google': {
         'appkey': os.environ.get('GOOGLE_APP_KEY'),
         'appsecret': os.environ.get('GOOGLE_APP_SECRET'),
-        'callbackurl': 'http://www.lylinux.net/oauth/authorize?type=google'
+        'callbackurl': 'http://www.rcwlinux.net/oauth/authorize?type=google'
     },
     'github': {
         'appkey': os.environ.get('GITHUB_APP_KEY'),
         'appsecret': os.environ.get('GITHUB_APP_SECRET'),
-        'callbackurl': 'http://www.lylinux.net/oauth/authorize?type=github'
+        'callbackurl': 'http://www.rcwlinux.net/oauth/authorize?type=github'
     },
     'facebook': {
         'appkey': os.environ.get('FACEBOOK_APP_KEY'),
         'appsecret': os.environ.get('FACEBOOK_APP_SECRET'),
-        'callbackurl': 'http://www.lylinux.net/oauth/authorize?type=facebook'
+        'callbackurl': 'http://www.rcwlinux.net/oauth/authorize?type=facebook'
     }
 }
 ```
@@ -51,7 +51,7 @@ owntracks是一个位置追踪软件，可以定时的将你的坐标提交到�
 `你的域名/owntracks/logtracks`就可以了。然后访问`你的域名/owntracks/show_dates`就可以看到有经纬度记录的日期，点击之后就可以看到运动轨迹了。地图是使用高德地图绘制。
 
 ## 邮件功能：
-同样，将`settings.py`中的`ADMINS = [('liangliang', 'liangliangyy@gmail.com')]`配置为你自己的错误接收邮箱，另外修改:
+同样，将`settings.py`中的`ADMINS = [('small_pupil', 'small_pupil@126.com')]`配置为你自己的错误接收邮箱，另外修改:
 ```python
 EMAIL_HOST = 'smtp.zoho.com'
 EMAIL_PORT = 587
@@ -63,4 +63,4 @@ SERVER_EMAIL = os.environ.get('DJANGO_EMAIL_USER')
 为你自己的邮箱配置。
 
 ## 微信公众号
-集成了简单的微信公众号功能，在微信后台将token地址设置为:`你的域名/robot` 即可，默认token为`lylinux`，当然你可以修改为你自己的，在`servermanager/robot.py`中。
+集成了简单的微信公众号功能，在微信后台将token地址设置为:`你的域名/robot` 即可，默认token为`rcwlinux`，当然你可以修改为你自己的，在`servermanager/robot.py`中。

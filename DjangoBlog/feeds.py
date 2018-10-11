@@ -1,18 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-
-"""
-@version: ??
-@author: liangliangyy
-@license: MIT Licence
-@contact: liangliangyy@gmail.com
-@site: https://www.lylinux.org/
-@software: PyCharm
-@file: feed.py
-@time: 2016/12/22 下午10:16
-"""
-
 from django.contrib.syndication.views import Feed
 from blog.models import Article
 from django.conf import settings

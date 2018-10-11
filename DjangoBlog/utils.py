@@ -1,17 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-
-"""
-@version: ??
-@author: liangliangyy
-@license: MIT Licence
-@contact: liangliangyy@gmail.com
-@site: https://www.lylinux.org/
-@software: PyCharm
-@file: utils.py
-@time: 2017/1/19 上午2:30
-"""
 from django.core.cache import cache
 from django.contrib.sites.models import Site
 from hashlib import md5

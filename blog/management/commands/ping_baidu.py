@@ -2,16 +2,6 @@
 # encoding: utf-8
 
 
-"""
-@version: ??
-@author: liangliangyy
-@license: MIT Licence
-@contact: liangliangyy@gmail.com
-@site: https://www.lylinux.org/
-@software: PyCharm
-@file: ping_baidu.py
-@time: 2017/1/17 下午15:29
-"""
 
 from django.core.management.base import BaseCommand, CommandError
 from blog.models import Article, Tag, Category
