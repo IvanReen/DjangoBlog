@@ -14,6 +14,9 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(BASE_DIR, 'myapp'))                          # 将apps目录设置成python可识别目录
+sys.path.insert(1, os.path.join(BASE_DIR, 'myext'))                          # 将ext目录设置成python可识别目录
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -34,8 +37,10 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    # 'django.contrib.admin',
-    'django.contrib.admin.apps.SimpleAdminConfig',
+    'django.contrib.admin',
+    'xadmin',                           # 注册xadmin的app
+    'crispy_forms',                     # 注册xadmin的依赖app
+    'reversion',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -45,13 +50,14 @@ INSTALLED_APPS = [
     'django.contrib.sitemaps',
     'pagedown',
     'haystack',
-    'blog',
-    'accounts',
-    'comments',
-    'oauth',
-    'servermanager',
+    'blog',            # 博客主体
+    'accounts',        # 账户信息
+    'comments',        # 评论
+    'oauth',           # 授权用户
+    'servermanager',   # 命令
     'owntracks',
-    'compressor'
+    'compressor',
+    'DjangoUeditor',                     # 注册DjangoUeditor的APP
 ]
 
 MIDDLEWARE = [
