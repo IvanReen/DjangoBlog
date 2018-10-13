@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# _*_ coding: utf-8 _*_
 
 from django.contrib.sitemaps import ping_google
 import requests

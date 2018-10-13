@@ -5,7 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/myapp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/myext" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.6" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.6 (MoocOnline)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+# _*_ coding: utf-8 _*_
 
 from werobot import WeRoBot
 import re

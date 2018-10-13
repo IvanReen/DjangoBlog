@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# _*_ coding: utf-8 _*_
 
 from django.conf import settings
 from django.contrib.auth import get_user_model

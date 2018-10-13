@@ -1,3 +1,4 @@
+# _*_ coding: utf-8 _*_
 from django.test import Client, RequestFactory, TestCase
 from blog.models import Article, Category, Tag
 from django.contrib.auth import get_user_model

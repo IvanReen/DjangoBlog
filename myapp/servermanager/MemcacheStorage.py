@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# _*_ coding: utf-8 _*_
 
 from werobot.session import SessionStorage
 from werobot.utils import json_loads, json_dumps

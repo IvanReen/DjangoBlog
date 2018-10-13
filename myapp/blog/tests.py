@@ -1,3 +1,4 @@
+# _*_ coding: utf-8 _*_
 from django.test import Client, RequestFactory, TestCase
 from blog.models import Article, Category, Tag, SideBar
 from django.contrib.auth import get_user_model
@@ -22,8 +23,8 @@ class ArticleTest(TestCase):
 
     def test_validate_article(self):
         site = Site.objects.get_current().domain
-        user = BlogUser.objects.get_or_create(email="liangliangyy@gmail.com", username="liangliangyy")[0]
-        user.set_password("liangliangyy")
+        user = BlogUser.objects.get_or_create(email="small_pupil@gmail.com", username="small_pupil")[0]
+        user.set_password("shangxin25")
         user.is_staff = True
         user.is_superuser = True
         user.save()
@@ -90,7 +91,7 @@ class ArticleTest(TestCase):
         rsp = self.client.get('/refresh')
         self.assertEqual(rsp.status_code, 302)
 
-        self.client.login(username='liangliangyy', password='liangliangyy')
+        self.client.login(username='small_pupil', password='small_pupil')
         rsp = self.client.get('/refresh')
         self.assertEqual(rsp.status_code, 200)
 
@@ -103,21 +104,21 @@ class ArticleTest(TestCase):
         p = Paginator(Article.objects.filter(tags=tag), 2)
         self.__check_pagination__(p, '分类标签归档', tag.slug)
 
-        p = Paginator(Article.objects.filter(author__username='liangliangyy'), 2)
-        self.__check_pagination__(p, '作者文章归档', 'liangliangyy')
+        p = Paginator(Article.objects.filter(author__username='small_pupil'), 2)
+        self.__check_pagination__(p, '作者文章归档', 'small_pupil')
 
         p = Paginator(Article.objects.filter(category=category), 2)
         self.__check_pagination__(p, '分类目录归档', category.slug)
 
         f = BlogSearchForm()
         f.search()
-        self.client.login(username='liangliangyy', password='liangliangyy')
+        self.client.login(username='small_pupil', password='small_pupil')
         from DjangoBlog.spider_notify import SpiderNotify
         SpiderNotify.baidu_notify([article.get_full_url()])
 
         from blog.templatetags.blog_tags import gravatar_url, gravatar
-        u = gravatar_url('liangliangyy@gmail.com')
-        u = gravatar('liangliangyy@gmail.com')
+        u = gravatar_url('small_pupil@gmail.com')
+        u = gravatar('small_pupil@gmail.com')
 
     def __check_pagination__(self, p, type, value):
         s = load_pagination_info(p.page(1), type, value)
@@ -135,10 +136,10 @@ class ArticleTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_validate_feed(self):
-        user = BlogUser.objects.get_or_create(email="liangliangyy12@gmail.com", username="liangliangyy")[0]
-        user.set_password("liangliangyy")
+        user = BlogUser.objects.get_or_create(email="small_pupil12@gmail.com", username="small_pupil")[0]
+        user.set_password("shangxin25")
         user.save()
-        self.client.login(username='liangliangyy', password='liangliangyy')
+        self.client.login(username='small_pupil', password='shangxin25')
 
         rsp = self.client.get('/refresh')
         self.assertEqual(rsp.status_code, 403)

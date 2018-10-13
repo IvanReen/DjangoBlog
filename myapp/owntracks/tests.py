@@ -1,3 +1,5 @@
+# _*_ coding: utf-8 _*_
+
 from django.test import Client, RequestFactory, TestCase
 from .models import OwnTrackLog
 from accounts.models import BlogUser
@@ -32,10 +34,10 @@ class OwnTrackLogTest(TestCase):
         rsp = self.client.get('/owntracks/show_maps')
         self.assertEqual(rsp.status_code, 302)
 
-        user = BlogUser.objects.create_superuser(email="liangliangyy1@gmail.com",
-                                                 username="liangliangyy1", password="liangliangyy1")
+        user = BlogUser.objects.create_superuser(email="small_pupil@126.com",
+                                                 username="small_pupil", password="shangxin25")
 
-        self.client.login(username='liangliangyy1', password='liangliangyy1')
+        self.client.login(username='small_pupil', password='shangxin25')
         s = OwnTrackLog()
         s.tid = 12
         s.lon = 123.234

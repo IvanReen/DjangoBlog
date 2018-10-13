@@ -1,6 +1,7 @@
+# _*_ coding: utf-8 _*_
 from django.db import models
-from django.urls import reverse
 from django.conf import settings
+from django.urls import reverse
 from uuslug import slugify
 
 from django.contrib.sites.models import Site

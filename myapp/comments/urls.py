@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
-
+# _*_ coding: utf-8 _*_
 
 from django.urls import path
 from . import views

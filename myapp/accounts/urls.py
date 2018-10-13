@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
+# _*_ coding: utf-8 _*_
 
 
 from django.conf.urls import url

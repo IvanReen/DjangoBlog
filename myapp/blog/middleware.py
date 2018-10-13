@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# _*_ coding: utf-8 _*_
 
 import time
 from ipware.ip import get_real_ip

@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
+# _*_ coding: utf-8 _*_
 
 from django.contrib.auth.forms import forms
 from django.forms import widgets

@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
-
+# _*_ coding: utf-8 _*_
 
 from haystack.forms import SearchForm
 from django import forms

@@ -1,3 +1,4 @@
+# _*_ coding: utf-8 _*_
 # 系统(内置)模块
 import os
 
@@ -48,7 +49,7 @@ xadmin.site.register(views.CommAdminView, GlobalSettings)
 
 
 class ArticleAdmin:
-    list_display = ('title', 'body', 'pub_time', 'status', 'comment_status', 'type', 'views', 'author', 'category', 'tags')
+    list_display = ('title', 'pub_time', 'status', 'comment_status', 'type', 'views', 'author', 'category', 'tags')
     list_per_page = 10
     list_filter = ('pub_time',)
     search_fields = ('title', 'author', 'category', 'tags')

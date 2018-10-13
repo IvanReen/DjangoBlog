@@ -1,3 +1,4 @@
+# _*_ coding: utf-8 _*_
 import xadmin
 from .models import Comment
 

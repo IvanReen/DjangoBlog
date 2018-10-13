@@ -1,3 +1,4 @@
+# _*_ coding: utf-8 _*_
 from django.test import Client, RequestFactory, TestCase
 from django.contrib.sites.models import Site
 from .models import commands
@@ -23,10 +24,10 @@ class ServerManagerTest(TestCase):
 
     def test_validate_comment(self):
         site = Site.objects.get_current().domain
-        user = BlogUser.objects.create_superuser(email="liangliangyy1@gmail.com",
-                                                 username="liangliangyy1", password="liangliangyy1")
+        user = BlogUser.objects.create_superuser(email="small_pupil@gmail.com",
+                                                 username="small_pupil", password="shangxin25")
 
-        self.client.login(username='liangliangyy1', password='liangliangyy1')
+        self.client.login(username='small_pupil', password='shangxin25')
 
         c = Category()
         c.name = "categoryccc"
