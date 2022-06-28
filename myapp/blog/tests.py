@@ -64,8 +64,8 @@ class ArticleTest(TestCase):
 
         for i in range(20):
             article = Article()
-            article.title = "nicetitle" + str(i)
-            article.body = "nicetitle" + str(i)
+            article.title = f"nicetitle{str(i)}"
+            article.body = f"nicetitle{str(i)}"
             article.author = user
             article.category = category
             article.type = 'a'

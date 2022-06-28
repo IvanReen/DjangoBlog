@@ -121,15 +121,15 @@ def load_sidebar(user):
     links = Links.objects.all()
     commment_list = Comment.objects.filter(is_enable=True).order_by('-id')[:settings.SIDEBAR_COMMENT_COUNT]
     show_adsense = settings.SHOW_GOOGLE_ADSENSE
-    # 标签云 计算字体大小
-    # 根据总数计算出平均值 大小为 (数目/平均值)*步长
-    increment = 5
     tags = Tag.objects.all()
     sidebar_tags = None
     if tags and len(tags) > 0:
         s = list(map(lambda t: (t, t.get_article_count()), tags))
         count = sum(map(lambda t: t[1], s))
         dd = 1 if count == 0 else count / len(tags)
+        # 标签云 计算字体大小
+        # 根据总数计算出平均值 大小为 (数目/平均值)*步长
+        increment = 5
         sidebar_tags = list(map(lambda x: (x[0], x[1], (x[1] / dd) * increment + 10), s))
 
     return {
@@ -234,10 +234,8 @@ def load_article_detail(article, isindex, user):
 @register.filter
 def gravatar_url(email, size=40):
     """获得gravatar头像"""
-    usermodels = OAuthUser.objects.filter(email=email)
-    if usermodels:
-        o = list(filter(lambda x: x.picture is not None, usermodels))
-        if o:
+    if usermodels := OAuthUser.objects.filter(email=email):
+        if o := list(filter(lambda x: x.picture is not None, usermodels)):
             return o[0].picture
     email = email.encode('utf-8')
 

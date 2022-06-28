@@ -25,13 +25,15 @@ class Command(BaseCommand):
         basetag.name = "标签"
         basetag.save()
         for i in range(1, 20):
-            article = Article.objects.get_or_create(category=category,
-                                                    title='nice title ' + str(i),
-                                                    body='nice content ' + str(i),
-                                                    author=user
-                                                    )[0]
+            article = Article.objects.get_or_create(
+                category=category,
+                title=f'nice title {str(i)}',
+                body=f'nice content {str(i)}',
+                author=user,
+            )[0]
+
             tag = Tag()
-            tag.name = "标签" + str(i)
+            tag.name = f"标签{str(i)}"
             tag.save()
             article.tags.add(tag)
             article.tags.add(basetag)

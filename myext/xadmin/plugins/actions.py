@@ -78,8 +78,7 @@ class DeleteSelectedAction(BaseActionView):
 
     @filter_hook
     def delete_models(self, queryset):
-        n = queryset.count()
-        if n:
+        if n := queryset.count():
             if self.delete_models_batch:
                 self.log('delete', _('Batch delete %(count)d %(items)s.') % {"count": n, "items": model_ngettext(self.opts, n)})
                 queryset.delete()
@@ -163,9 +162,12 @@ class ActionPlugin(BaseAdminPlugin):
         return list_display
 
     def get_list_display_links(self, list_display_links):
-        if self.actions:
-            if len(list_display_links) == 1 and list_display_links[0] == 'action_checkbox':
-                return list(self.admin_view.list_display[1:2])
+        if (
+            self.actions
+            and len(list_display_links) == 1
+            and list_display_links[0] == 'action_checkbox'
+        ):
+            return list(self.admin_view.list_display[1:2])
         return list_display_links
 
     def get_context(self, context):
@@ -221,12 +223,11 @@ class ActionPlugin(BaseAdminPlugin):
         return response
 
     def response_action(self, ac, queryset):
-        if isinstance(ac, type) and issubclass(ac, BaseActionView):
-            action_view = self.get_model_view(ac, self.admin_view.model)
-            action_view.init_action(self.admin_view)
-            return action_view.do_action(queryset)
-        else:
+        if not isinstance(ac, type) or not issubclass(ac, BaseActionView):
             return ac(self.admin_view, self.request, queryset)
+        action_view = self.get_model_view(ac, self.admin_view.model)
+        action_view.init_action(self.admin_view)
+        return action_view.do_action(queryset)
 
     def get_actions(self):
         if self.actions is None:
@@ -267,9 +268,16 @@ class ActionPlugin(BaseAdminPlugin):
 
     def get_action(self, action):
         if isinstance(action, type) and issubclass(action, BaseActionView):
-            if not action.has_perm(self.admin_view):
-                return None
-            return action, getattr(action, 'action_name'), getattr(action, 'description'), getattr(action, 'icon')
+            return (
+                (
+                    action,
+                    getattr(action, 'action_name'),
+                    getattr(action, 'description'),
+                    getattr(action, 'icon'),
+                )
+                if action.has_perm(self.admin_view)
+                else None
+            )
 
         elif callable(action):
             func = action

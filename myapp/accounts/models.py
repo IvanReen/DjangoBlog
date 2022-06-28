@@ -24,5 +24,4 @@ class BlogUser(AbstractUser):
 
     def get_full_url(self):
         site = Site.objects.get_current().domain
-        url = "https://{site}{path}".format(site=site, path=self.get_absolute_url())
-        return url
+        return "https://{site}{path}".format(site=site, path=self.get_absolute_url())

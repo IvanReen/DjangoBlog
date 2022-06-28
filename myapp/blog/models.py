@@ -28,8 +28,7 @@ class BaseModel(models.Model):
 
     def get_full_url(self):
         site = Site.objects.get_current().domain
-        url = "https://{site}{path}".format(site=site, path=self.get_absolute_url())
-        return url
+        return "https://{site}{path}".format(site=site, path=self.get_absolute_url())
 
     class Meta:
         abstract = True
@@ -89,9 +88,7 @@ class Article(BaseModel):
     @cache_decorator(60 * 60 * 10)
     def get_category_tree(self):
         tree = self.category.get_category_tree()
-        names = list(map(lambda c: (c.name, c.get_absolute_url()), tree))
-
-        return names
+        return list(map(lambda c: (c.name, c.get_absolute_url()), tree))
 
     def save(self, *args, **kwargs):
         if not self.slug or self.slug == 'no-slug' or not self.id:
@@ -106,8 +103,7 @@ class Article(BaseModel):
 
     def comment_list(self):
         cache_key = 'article_comments_{id}'.format(id=self.id)
-        value = cache.get(cache_key)
-        if value:
+        if value := cache.get(cache_key):
             logger.info('get article comments:{id}'.format(id=self.id))
             return value
         else:

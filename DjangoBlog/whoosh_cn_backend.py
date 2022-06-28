@@ -122,7 +122,7 @@ class WhooshSearchBackend(BaseSearchBackend):
             connections[self.connection_alias].get_unified_index().all_searchfields())
         self.parser = QueryParser(self.content_field_name, schema=self.schema)
 
-        if new_index is True:
+        if new_index:
             self.index = self.storage.create_index(self.schema)
         else:
             try:
@@ -215,9 +215,14 @@ class WhooshSearchBackend(BaseSearchBackend):
                     # We'll log the object identifier but won't include the actual object
                     # to avoid the possibility of that generating encoding errors while
                     # processing the log message:
-                    self.log.error(u"%s while preparing object for update" % e.__class__.__name__,
-                                   exc_info=True, extra={"data": {"index": index,
-                                                                  "object": get_identifier(obj)}})
+                    self.log.error(
+                        f"{e.__class__.__name__} while preparing object for update",
+                        exc_info=True,
+                        extra={
+                            "data": {"index": index, "object": get_identifier(obj)}
+                        },
+                    )
+
 
         if len(iterable) > 0:
             # For now, commit no matter what, as we run into locking issues otherwise.
@@ -251,10 +256,7 @@ class WhooshSearchBackend(BaseSearchBackend):
             if models is None:
                 self.delete_index()
             else:
-                models_to_delete = []
-
-                for model in models:
-                    models_to_delete.append(u"%s:%s" % (DJANGO_CT, get_model_ct(model)))
+                models_to_delete = [f"{DJANGO_CT}:{get_model_ct(model)}" for model in models]
 
                 self.index.delete_by_query(q=self.parser.parse(u" OR ".join(models_to_delete)))
         except Exception as e:
@@ -288,11 +290,8 @@ class WhooshSearchBackend(BaseSearchBackend):
     def calculate_page(self, start_offset=0, end_offset=None):
         # Prevent against Whoosh throwing an error. Requires an end_offset
         # greater than 0.
-        if not end_offset is None and end_offset <= 0:
+        if end_offset is not None and end_offset <= 0:
             end_offset = 1
-
-        # Determine the page.
-        page_num = 0
 
         if end_offset is None:
             end_offset = 1000000
@@ -302,11 +301,12 @@ class WhooshSearchBackend(BaseSearchBackend):
 
         page_length = end_offset - start_offset
 
-        if page_length and page_length > 0:
-            page_num = int(start_offset / page_length)
+        page_num = (
+            int(start_offset / page_length)
+            if page_length and page_length > 0
+            else 0
+        ) + 1
 
-        # Increment because Whoosh uses 1-based page numbers.
-        page_num += 1
         return page_num, page_length
 
     @log_query
@@ -342,11 +342,7 @@ class WhooshSearchBackend(BaseSearchBackend):
             # handle what it's being asked to sort by. Reversing is an
             # all-or-nothing action, unfortunately.
             sort_by_list = []
-            reverse_counter = 0
-
-            for order_by in sort_by:
-                if order_by.startswith('-'):
-                    reverse_counter += 1
+            reverse_counter = sum(bool(order_by.startswith('-')) for order_by in sort_by)
 
             if reverse_counter and reverse_counter != len(sort_by):
                 raise SearchBackendError("Whoosh requires all order_by fields"
@@ -394,7 +390,7 @@ class WhooshSearchBackend(BaseSearchBackend):
             if narrow_queries is None:
                 narrow_queries = set()
 
-            narrow_queries.add(' OR '.join(['%s:%s' % (DJANGO_CT, rm) for rm in model_choices]))
+            narrow_queries.add(' OR '.join([f'{DJANGO_CT}:{rm}' for rm in model_choices]))
 
         narrow_searcher = None
 
@@ -521,7 +517,7 @@ class WhooshSearchBackend(BaseSearchBackend):
             if narrow_queries is None:
                 narrow_queries = set()
 
-            narrow_queries.add(' OR '.join(['%s:%s' % (DJANGO_CT, rm) for rm in model_choices]))
+            narrow_queries.add(' OR '.join([f'{DJANGO_CT}:{rm}' for rm in model_choices]))
 
         if additional_query_string and additional_query_string != '*':
             narrow_queries.add(additional_query_string)
@@ -553,7 +549,7 @@ class WhooshSearchBackend(BaseSearchBackend):
         raw_results = EmptyResults()
 
         if self.index.doc_count():
-            query = "%s:%s" % (ID, get_identifier(model_instance))
+            query = f"{ID}:{get_identifier(model_instance)}"
             searcher = self.index.searcher()
             parsed_query = self.parser.parse(query)
             results = searcher.search(parsed_query)
@@ -671,13 +667,12 @@ class WhooshSearchBackend(BaseSearchBackend):
         }
 
     def create_spelling_suggestion(self, query_string):
-        spelling_suggestion = None
         reader = self.index.reader()
         corrector = reader.corrector(self.content_field_name)
         cleaned_query = force_text(query_string)
 
         if not query_string:
-            return spelling_suggestion
+            return None
 
         # Clean the string.
         for rev_word in self.RESERVED_WORDS:
@@ -696,8 +691,7 @@ class WhooshSearchBackend(BaseSearchBackend):
             if len(suggestions) > 0:
                 suggested_words.append(suggestions[0])
 
-        spelling_suggestion = ' '.join(suggested_words)
-        return spelling_suggestion
+        return ' '.join(suggested_words)
 
     def _from_python(self, value):
         """
@@ -709,16 +703,10 @@ class WhooshSearchBackend(BaseSearchBackend):
             if not hasattr(value, 'hour'):
                 value = datetime(value.year, value.month, value.day, 0, 0, 0)
         elif isinstance(value, bool):
-            if value:
-                value = 'true'
-            else:
-                value = 'false'
+            value = 'true' if value else 'false'
         elif isinstance(value, (list, tuple)):
             value = u','.join([force_text(v) for v in value])
-        elif isinstance(value, (six.integer_types, float)):
-            # Leave it alone.
-            pass
-        else:
+        elif not isinstance(value, (six.integer_types, float)):
             value = force_text(value)
         return value
 
@@ -734,9 +722,7 @@ class WhooshSearchBackend(BaseSearchBackend):
             return False
 
         if value and isinstance(value, six.string_types):
-            possible_datetime = DATETIME_REGEX.search(value)
-
-            if possible_datetime:
+            if possible_datetime := DATETIME_REGEX.search(value):
                 date_values = possible_datetime.groupdict()
 
                 for dk, dv in date_values.items():
@@ -823,7 +809,8 @@ class WhooshSearchQuery(BaseSearchQuery):
         if field == 'content':
             index_fieldname = ''
         else:
-            index_fieldname = u'%s:' % connections[self._using].get_unified_index().get_index_fieldname(field)
+            index_fieldname = f'{connections[self._using].get_unified_index().get_index_fieldname(field)}:'
+
 
         filter_types = {
             'content': '%s',
@@ -840,77 +827,77 @@ class WhooshSearchQuery(BaseSearchQuery):
 
         if value.post_process is False:
             query_frag = prepared_value
-        else:
-            if filter_type in ['content', 'contains', 'startswith', 'endswith', 'fuzzy']:
-                if value.input_type_name == 'exact':
-                    query_frag = prepared_value
-                else:
-                    # Iterate over terms & incorportate the converted form of each into the query.
-                    terms = []
-
-                    if isinstance(prepared_value, six.string_types):
-                        possible_values = prepared_value.split(' ')
-                    else:
-                        if is_datetime is True:
-                            prepared_value = self._convert_datetime(prepared_value)
-
-                        possible_values = [prepared_value]
-
-                    for possible_value in possible_values:
-                        terms.append(filter_types[filter_type] % self.backend._from_python(possible_value))
-
-                    if len(terms) == 1:
-                        query_frag = terms[0]
-                    else:
-                        query_frag = u"(%s)" % " AND ".join(terms)
-            elif filter_type == 'in':
-                in_options = []
-
-                for possible_value in prepared_value:
-                    is_datetime = False
-
-                    if hasattr(possible_value, 'strftime'):
-                        is_datetime = True
-
-                    pv = self.backend._from_python(possible_value)
-
-                    if is_datetime is True:
-                        pv = self._convert_datetime(pv)
-
-                    if isinstance(pv, six.string_types) and not is_datetime:
-                        in_options.append('"%s"' % pv)
-                    else:
-                        in_options.append('%s' % pv)
-
-                query_frag = "(%s)" % " OR ".join(in_options)
-            elif filter_type == 'range':
-                start = self.backend._from_python(prepared_value[0])
-                end = self.backend._from_python(prepared_value[1])
-
-                if hasattr(prepared_value[0], 'strftime'):
-                    start = self._convert_datetime(start)
-
-                if hasattr(prepared_value[1], 'strftime'):
-                    end = self._convert_datetime(end)
-
-                query_frag = u"[%s to %s]" % (start, end)
-            elif filter_type == 'exact':
-                if value.input_type_name == 'exact':
-                    query_frag = prepared_value
-                else:
-                    prepared_value = Exact(prepared_value).prepare(self)
-                    query_frag = filter_types[filter_type] % prepared_value
+        elif filter_type in ['content', 'contains', 'startswith', 'endswith', 'fuzzy']:
+            if value.input_type_name == 'exact':
+                query_frag = prepared_value
             else:
-                if is_datetime is True:
-                    prepared_value = self._convert_datetime(prepared_value)
+                if isinstance(prepared_value, six.string_types):
+                    possible_values = prepared_value.split(' ')
+                else:
+                    if is_datetime:
+                        prepared_value = self._convert_datetime(prepared_value)
 
+                    possible_values = [prepared_value]
+
+                terms = [
+                    filter_types[filter_type]
+                    % self.backend._from_python(possible_value)
+                    for possible_value in possible_values
+                ]
+
+                query_frag = terms[0] if len(terms) == 1 else f'({" AND ".join(terms)})'
+        elif filter_type == 'in':
+            in_options = []
+
+            for possible_value in prepared_value:
+                is_datetime = False
+
+                if hasattr(possible_value, 'strftime'):
+                    is_datetime = True
+
+                pv = self.backend._from_python(possible_value)
+
+                if is_datetime:
+                    pv = self._convert_datetime(pv)
+
+                if isinstance(pv, six.string_types) and not is_datetime:
+                    in_options.append('"%s"' % pv)
+                else:
+                    in_options.append(f'{pv}')
+
+            query_frag = f'({" OR ".join(in_options)})'
+        elif filter_type == 'range':
+            start = self.backend._from_python(prepared_value[0])
+            end = self.backend._from_python(prepared_value[1])
+
+            if hasattr(prepared_value[0], 'strftime'):
+                start = self._convert_datetime(start)
+
+            if hasattr(prepared_value[1], 'strftime'):
+                end = self._convert_datetime(end)
+
+            query_frag = f"[{start} to {end}]"
+        elif filter_type == 'exact':
+            if value.input_type_name == 'exact':
+                query_frag = prepared_value
+            else:
+                prepared_value = Exact(prepared_value).prepare(self)
                 query_frag = filter_types[filter_type] % prepared_value
+        else:
+            if is_datetime is True:
+                prepared_value = self._convert_datetime(prepared_value)
 
-        if len(query_frag) and not isinstance(value, Raw):
-            if not query_frag.startswith('(') and not query_frag.endswith(')'):
-                query_frag = "(%s)" % query_frag
+            query_frag = filter_types[filter_type] % prepared_value
 
-        return u"%s%s" % (index_fieldname, query_frag)
+        if (
+            len(query_frag)
+            and not isinstance(value, Raw)
+            and not query_frag.startswith('(')
+            and not query_frag.endswith(')')
+        ):
+            query_frag = f"({query_frag})"
+
+        return f"{index_fieldname}{query_frag}"
 
 
         # if not filter_type in ('in', 'range'):

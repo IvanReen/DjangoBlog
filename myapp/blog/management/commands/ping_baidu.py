@@ -18,22 +18,24 @@ class Command(BaseCommand):
                             help='article : all article,tag : all tag,category: all category,all: All of these')
 
     def get_full_url(self, path):
-        url = "https://{site}{path}".format(site=site, path=path)
-        return url
+        return "https://{site}{path}".format(site=site, path=path)
 
     def handle(self, *args, **options):
         type = options['data_type']
-        self.stdout.write('start get %s' % type)
+        self.stdout.write(f'start get {type}')
 
         urls = []
-        if type == 'article' or type == 'all':
-            for article in Article.objects.filter(status='p'):
-                urls.append(article.get_full_url())
-        if type == 'tag' or type == 'all':
+        if type in ['article', 'all']:
+            urls.extend(
+                article.get_full_url()
+                for article in Article.objects.filter(status='p')
+            )
+
+        if type in ['tag', 'all']:
             for tag in Tag.objects.all():
                 url = tag.get_absolute_url()
                 urls.append(self.get_full_url(url))
-        if type == 'category' or type == 'all':
+        if type in ['category', 'all']:
             for category in Category.objects.all():
                 url = category.get_absolute_url()
                 urls.append(self.get_full_url(url))

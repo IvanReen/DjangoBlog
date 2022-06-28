@@ -37,7 +37,6 @@ def cache_decorator(expiration=3 * 60):
                 key = view.get_cache_key()
             except:
                 key = None
-                pass
             if not key:
                 unique_str = repr((func, args, kwargs))
 
@@ -45,13 +44,13 @@ def cache_decorator(expiration=3 * 60):
                 key = m.hexdigest()
             value = cache.get(key)
             if value:
-                logger.info('cache_decorator get cache:%s key:%s' % (func.__name__, key))
-                return value
+                logger.info(f'cache_decorator get cache:{func.__name__} key:{key}')
             else:
-                logger.info('cache_decorator set cache:%s key:%s' % (func.__name__, key))
+                logger.info(f'cache_decorator set cache:{func.__name__} key:{key}')
                 value = func(*args, **kwargs)
                 cache.set(key, value, expiration)
-                return value
+
+            return value
 
         return news
 
@@ -66,8 +65,7 @@ def expire_view_cache(path, servername, serverport, key_prefix=None):
     request.META = {'SERVER_NAME': servername, 'SERVER_PORT': serverport}
     request.path = path
 
-    key = get_cache_key(request, key_prefix=key_prefix, cache=cache)
-    if key:
+    if key := get_cache_key(request, key_prefix=key_prefix, cache=cache):
         logger.info('expire_view_cache:get key:{path}'.format(path=path))
         if cache.get(key):
             cache.delete(key)
@@ -106,7 +104,7 @@ class BlogMarkDownRenderer(mistune.Renderer):
         text = link = escape(link)
 
         if is_email:
-            link = 'mailto:%s' % link
+            link = f'mailto:{link}'
         if not link:
             link = "#"
         site = Site.objects.get_current()
@@ -142,6 +140,6 @@ def send_email(emailto, title, content):
 
 def parse_dict_to_url(dict):
     from urllib.parse import quote
-    url = '&'.join(['{}={}'.format(quote(k, safe='/'), quote(v, safe='/'))
-                    for k, v in dict.items()])
-    return url
+    return '&'.join(
+        [f"{quote(k, safe='/')}={quote(v, safe='/')}" for k, v in dict.items()]
+    )

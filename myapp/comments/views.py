@@ -20,7 +20,7 @@ class CommentPostView(FormView):
 
         article = Article.objects.get(pk=article_id)
         url = article.get_absolute_url()
-        return HttpResponseRedirect(url + "#comments")
+        return HttpResponseRedirect(f"{url}#comments")
 
     def form_invalid(self, form):
         article_id = self.kwargs['article_id']

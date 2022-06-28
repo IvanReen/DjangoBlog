@@ -109,7 +109,4 @@ UpdateUserSettings()
 
 # 取得配置项参数
 def GetUeditorSettings(key, default=None):
-    if key in UEditorSettings:
-        return UEditorSettings[key]
-    else:
-        return default
+    return UEditorSettings[key] if key in UEditorSettings else default

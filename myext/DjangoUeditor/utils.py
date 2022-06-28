@@ -20,26 +20,16 @@ class FileSize():
         import re
         if isinstance(size, six.integer_types):
             return size
-        else:
-            if not isinstance(size, six.string_types):
-                return 0
-            else:
-                oSize = size.lstrip().upper().replace(" ", "")
-                pattern = re.compile(
-                    r"(\d*\.?(?=\d)\d*)(byte|kb|mb|gb|tb)", re.I)
-                match = pattern.match(oSize)
-                if match:
-                    m_size, m_unit = match.groups()
-                    if m_size.find(".") == -1:
-                        m_size = long(m_size)
-                    else:
-                        m_size = float(m_size)
-                    if m_unit != "BYTE":
-                        return m_size * FileSize.SIZE_UNIT[m_unit]
-                    else:
-                        return m_size
-                else:
-                    return 0
+        if not isinstance(size, six.string_types):
+            return 0
+        oSize = size.lstrip().upper().replace(" ", "")
+        pattern = re.compile(
+            r"(\d*\.?(?=\d)\d*)(byte|kb|mb|gb|tb)", re.I)
+        if not (match := pattern.match(oSize)):
+            return 0
+        m_size, m_unit = match.groups()
+        m_size = long(m_size) if m_size.find(".") == -1 else float(m_size)
+        return m_size * FileSize.SIZE_UNIT[m_unit] if m_unit != "BYTE" else m_size
 
     # 返回字节为单位的值
     @property
@@ -68,7 +58,7 @@ class FileSize():
             unit = "TB"
 
         if (self.size % FileSize.SIZE_UNIT[unit]) == 0:
-            return "%s%s" % ((self.size / FileSize.SIZE_UNIT[unit]), unit)
+            return f"{self.size / FileSize.SIZE_UNIT[unit]}{unit}"
         else:
             return "%0.2f%s" % (round(float(self.size) / float(
                 FileSize.SIZE_UNIT[unit]), 2), unit)
@@ -90,49 +80,33 @@ class FileSize():
             return FileSize(self.size - FileSize(other).size)
 
     def __gt__(self, other):
-        if isinstance(other, FileSize):
-            if self.size > other.size:
-                return True
-            else:
-                return False
-        else:
-            if self.size > FileSize(other).size:
-                return True
-            else:
-                return False
+        return (
+            isinstance(other, FileSize)
+            and self.size > other.size
+            or not isinstance(other, FileSize)
+            and self.size > FileSize(other).size
+        )
 
     def __lt__(self, other):
-        if isinstance(other, FileSize):
-            if other.size > self.size:
-                return True
-            else:
-                return False
-        else:
-            if FileSize(other).size > self.size:
-                return True
-            else:
-                return False
+        return (
+            isinstance(other, FileSize)
+            and other.size > self.size
+            or not isinstance(other, FileSize)
+            and FileSize(other).size > self.size
+        )
 
     def __ge__(self, other):
-        if isinstance(other, FileSize):
-            if self.size >= other.size:
-                return True
-            else:
-                return False
-        else:
-            if self.size >= FileSize(other).size:
-                return True
-            else:
-                return False
+        return (
+            isinstance(other, FileSize)
+            and self.size >= other.size
+            or not isinstance(other, FileSize)
+            and self.size >= FileSize(other).size
+        )
 
     def __le__(self, other):
-        if isinstance(other, FileSize):
-            if other.size >= self.size:
-                return True
-            else:
-                return False
-        else:
-            if FileSize(other).size >= self.size:
-                return True
-            else:
-                return False
+        return (
+            isinstance(other, FileSize)
+            and other.size >= self.size
+            or not isinstance(other, FileSize)
+            and FileSize(other).size >= self.size
+        )

@@ -65,7 +65,7 @@ def show_log_dates(request):
 
 
 def convert_to_amap(locations):
-    datas = ';'.join(set(map(lambda x: str(x.lon) + ',' + str(x.lat), locations)))
+    datas = ';'.join(set(map(lambda x: f'{str(x.lon)},{str(x.lat)}', locations)))
 
     key = '8440a376dfc9743d8924bf0ad141f28e'
     api = 'http://restapi.amap.com/v3/assistant/coordinate/convert'
@@ -92,16 +92,12 @@ def get_datas(request):
         querydate = django.utils.timezone.datetime(date[0], date[1], date[2], 0, 0, 0)
     nextdate = querydate + datetime.timedelta(days=1)
     models = OwnTrackLog.objects.filter(created_time__range=(querydate, nextdate))
-    result = list()
+    result = []
     if models and len(models):
         for tid, item in groupby(sorted(models, key=lambda k: k.tid), key=lambda k: k.tid):
 
-            d = dict()
-            d["name"] = tid
-            paths = list()
             locations = convert_to_amap(item)
-            for i in locations.split(';'):
-                paths.append(i.split(','))
-            d["path"] = paths
+            paths = [i.split(',') for i in locations.split(';')]
+            d = {"name": tid, "path": paths}
             result.append(d)
     return JsonResponse(result, safe=False)

@@ -19,21 +19,17 @@ class UEditorEventHandler(object):
         });"""
         event_codes = []
         # 列出所有on_打头的方法，然后在ueditor中进行侦听
-        events = filter(lambda x: x[0:3] == "on_", dir(self))
+        events = filter(lambda x: x[:3] == "on_", dir(self))
         for event in events:
             try:
-                event_code = getattr(self, event)()
-                if event_code:
+                if event_code := getattr(self, event)():
                     event_code = event_code % {"editor": editorID}
                     event_codes.append(jscode % {"editor": editorID, "event": event[
                                        3:], "event_code": event_code})
             except:
                 pass
 
-        if len(event_codes) == 0:
-            return ""
-        else:
-            return "\n".join(event_codes)
+        return "\n".join(event_codes) if event_codes else ""
 
 
 class UEditorCommand(object):
@@ -53,10 +49,8 @@ class UEditorCommand(object):
 
     def render_ajax_command(self):
         """"生成通过ajax调用后端命令的前端ajax代码"""
-        if not self.ajax_url:
-            return ""
-
-        return u"""
+        return (
+            u"""
             UE.ajax.request( '%(ajax_url)s', {
                  data: {
                      name: 'ueditor'
@@ -64,11 +58,15 @@ class UEditorCommand(object):
                  onsuccess: function ( xhr ) {%(ajax_success)s},
                  onerror: function ( xhr ){ %(ajax_error)s }
             });
-        """ % {
-            "ajax_url": self.ajax_url,
-            "ajax_success": self.onExecuteAjaxCommand("success"),
-            "ajax_error": self.onExecuteAjaxCommand("error")
-        }
+        """
+            % {
+                "ajax_url": self.ajax_url,
+                "ajax_success": self.onExecuteAjaxCommand("success"),
+                "ajax_error": self.onExecuteAjaxCommand("error"),
+            }
+            if self.ajax_url
+            else ""
+        )
 
     def render_command(self):
         """" 返回注册命令的js定义  """
@@ -87,7 +85,7 @@ class UEditorCommand(object):
             cmds.append(u"""queryCommandValue:function(){
                     %s
                 }""" % queryvalue_command)
-        if len(cmds) > 0:
+        if cmds:
             return u"""
             editor.registerCommand(uiName, {
                     %s

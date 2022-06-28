@@ -38,7 +38,7 @@ def save_upload_file(PostFile, FilePath):
             f.write(chunk)
     except Exception as E:
         f.close()
-        return u"写入文件错误: {}".format(E.message)
+        return f"写入文件错误: {E.message}"
     f.close()
     return u"SUCCESS"
 
@@ -146,7 +146,7 @@ def get_files(root_path, cur_path, allow_types=[]):
 @csrf_exempt
 def UploadFile(request):
     """上传文件"""
-    if not request.method == "POST":
+    if request.method != "POST":
         return HttpResponse(json.dumps(u"{'state:'ERROR'}"), content_type="application/javascript")
 
     state = "SUCCESS"
@@ -185,8 +185,8 @@ def UploadFile(request):
     if action in upload_allow_type:
         allow_type = list(request.GET.get(upload_allow_type[
                           action], USettings.UEditorUploadSettings.get(upload_allow_type[action], "")))
-        if not upload_original_ext in allow_type:
-            state = u"服务器不允许上传%s类型的文件。" % upload_original_ext
+        if upload_original_ext not in allow_type:
+            state = f"服务器不允许上传{upload_original_ext}类型的文件。"
 
     # 大小检验
     upload_max_size = {
@@ -201,7 +201,7 @@ def UploadFile(request):
         from .utils import FileSize
         MF = FileSize(max_size)
         if upload_file_size > MF.size:
-            state = u"上传文件大小不允许超过%s。" % MF.FriendValue
+            state = f"上传文件大小不允许超过{MF.FriendValue}。"
 
     # 检测保存路径是否存在,如果不存在则需要创建
     upload_path_format = {
@@ -221,21 +221,18 @@ def UploadFile(request):
     OutputPathFormat, OutputPath, OutputFile = get_output_path(
         request, upload_path_format[action], path_format_var)
 
-    # 所有检测完成后写入文件
     if state == "SUCCESS":
         if action == "uploadscrawl":
             state = save_scrawl_file(
                 request, os.path.join(OutputPath, OutputFile))
+        elif upload_module_name := USettings.UEditorUploadSettings.get(
+            "upload_module", None
+        ):
+            mod = import_module(upload_module_name)
+            state = mod.upload(file, OutputPathFormat)
         else:
-            # 保存到文件中，如果保存错误，需要返回ERROR
-            upload_module_name = USettings.UEditorUploadSettings.get(
-                "upload_module", None)
-            if upload_module_name:
-                mod = import_module(upload_module_name)
-                state = mod.upload(file, OutputPathFormat)
-            else:
-                state = save_upload_file(
-                    file, os.path.join(OutputPath, OutputFile))
+            state = save_upload_file(
+                file, os.path.join(OutputPath, OutputFile))
 
     url_path = urljoin(USettings.gSettings.MEDIA_URL, OutputPathFormat)
     # 返回数据
@@ -255,7 +252,7 @@ def catcher_remote_image(request):
     """远程抓图，当catchRemoteImageEnable:true时，
         如果前端插入图片地址与当前web不在同一个域，则由本函数从远程下载图片到本地
     """
-    if not request.method == "POST":
+    if request.method != "POST":
         return HttpResponse(json.dumps(u"{'state:'ERROR'}"), content_type="application/javascript")
 
     state = "SUCCESS"
@@ -290,14 +287,13 @@ def catcher_remote_image(request):
                 remote_image = urlopen(remote_url)
                 # 将抓取到的文件写入文件
                 try:
-                    f = open(o_filename, 'wb')
-                    f.write(remote_image.read())
-                    f.close()
+                    with open(o_filename, 'wb') as f:
+                        f.write(remote_image.read())
                     state = "SUCCESS"
                 except Exception as E:
-                    state = u"写入抓取图片文件错误:%s" % E.message
+                    state = f"写入抓取图片文件错误:{E.message}"
             except Exception as E:
-                state = u"抓取图片错误：%s" % E.message
+                state = f"抓取图片错误：{E.message}"
 
             catcher_infos.append({
                 "state": state,
@@ -309,9 +305,10 @@ def catcher_remote_image(request):
             })
 
     return_info = {
-        "state": "SUCCESS" if len(catcher_infos) > 0 else "ERROR",
-        "list": catcher_infos
+        "state": "SUCCESS" if catcher_infos else "ERROR",
+        "list": catcher_infos,
     }
+
 
     return HttpResponse(json.dumps(return_info, ensure_ascii=False), content_type="application/javascript")
 
@@ -340,10 +337,9 @@ def save_scrawl_file(request, filename):
     try:
         content = request.POST.get(
             USettings.UEditorUploadSettings.get("scrawlFieldName", "upfile"))
-        f = open(filename, 'wb')
-        f.write(base64.decodestring(content))
-        f.close()
+        with open(filename, 'wb') as f:
+            f.write(base64.decodestring(content))
         state = "SUCCESS"
     except Exception as E:
-        state = "写入图片文件错误: {}".format(E.message)
+        state = f"写入图片文件错误: {E.message}"
     return state

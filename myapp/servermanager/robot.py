@@ -53,11 +53,9 @@ def convert_to_articlereply(articles, message):
 def search(message, session):
     s = message.content
     searchstr = str(s).replace('?', '')
-    result = blogapi.search_articles(searchstr)
-    if result:
+    if result := blogapi.search_articles(searchstr):
         articles = list(map(lambda x: x.object, result))
-        reply = convert_to_articlereply(articles, message)
-        return reply
+        return convert_to_articlereply(articles, message)
     else:
         return '没有找到相关文章。'
 
@@ -66,15 +64,13 @@ def search(message, session):
 def category(message, session):
     categorys = blogapi.get_category_lists()
     content = ','.join(map(lambda x: x.name, categorys))
-    return '所有文章分类目录：' + content
+    return f'所有文章分类目录：{content}'
 
 
 @robot.filter(re.compile(r'^recent\s*$', re.I))
 def recents(message, session):
-    articles = blogapi.get_recent_articles()
-    if articles:
-        reply = convert_to_articlereply(articles, message)
-        return reply
+    if articles := blogapi.get_recent_articles():
+        return convert_to_articlereply(articles, message)
     else:
         return "暂时还没有文章"
 
@@ -122,24 +118,24 @@ class CommandHandler():
         self.commands = commands.objects.all()
 
     def run(self, title):
-        cmd = list(filter(lambda x: x.title.upper() == title.upper(), self.commands))
-        if cmd:
+        if cmd := list(
+            filter(lambda x: x.title.upper() == title.upper(), self.commands)
+        ):
             return self.__run_command__(cmd[0].command)
         else:
             return "未找到相关命令，请输入hepme获得帮助。"
 
     def __run_command__(self, cmd):
         try:
-            str = os.popen(cmd).read()
-            return str
+            return os.popen(cmd).read()
         except:
             return '命令执行出错!'
 
     def get_help(self):
-        rsp = ''
-        for cmd in self.commands:
-            rsp += '{c}:{d}\n'.format(c=cmd.title, d=cmd.describe)
-        return rsp
+        return ''.join(
+            '{c}:{d}\n'.format(c=cmd.title, d=cmd.describe)
+            for cmd in self.commands
+        )
 
 
 cmdhandler = CommandHandler()
@@ -182,9 +178,7 @@ class MessageHandler():
             self.savesession()
             return "输入管理员密码"
         if self.userinfo.isAdmin and not self.userinfo.isPasswordSet:
-            passwd = settings.WXADMIN
-            if settings.TESTING:
-                passwd='123'
+            passwd = '123' if settings.TESTING else settings.WXADMIN
             if passwd.upper() == get_md5(get_md5(info)).upper():
                 self.userinfo.isPasswordSet = True
                 self.savesession()
@@ -200,14 +194,12 @@ class MessageHandler():
         if self.userinfo.isAdmin and self.userinfo.isPasswordSet:
             if self.userinfo.Command != '' and info.upper() == 'Y':
                 return cmdhandler.run(self.userinfo.Command)
-            else:
-                if info.upper() == 'HELPME':
-                    return cmdhandler.get_help()
-                self.userinfo.Command = info
-                self.savesession()
-                return "确认执行: " + info + " 命令?"
-        rsp = tuling.getdata(info)
-        return rsp
+            if info.upper() == 'HELPME':
+                return cmdhandler.get_help()
+            self.userinfo.Command = info
+            self.savesession()
+            return f"确认执行: {info} 命令?"
+        return tuling.getdata(info)
 
 
 class WxUserInfo():

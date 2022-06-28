@@ -36,8 +36,7 @@ class ArticleListView(ListView):
     @property
     def page_number(self):
         page_kwarg = self.page_kwarg
-        page = self.kwargs.get(page_kwarg) or self.request.GET.get(page_kwarg) or 1
-        return page
+        return self.kwargs.get(page_kwarg) or self.request.GET.get(page_kwarg) or 1
 
     def get_queryset_cache_key(self):
         """
@@ -52,9 +51,7 @@ class ArticleListView(ListView):
         raise NotImplementedError()
 
     def get_queryset_from_cache(self, cache_key):
-        # raise NotImplementedError()
-        value = cache.get(cache_key)
-        if value:
+        if value := cache.get(cache_key):
             logger.info('get view cache.key:{key}'.format(key=cache_key))
             return value
         else:
@@ -65,18 +62,15 @@ class ArticleListView(ListView):
 
     def get_queryset(self):
         key = self.get_queryset_cache_key()
-        value = self.get_queryset_from_cache(key)
-        return value
+        return self.get_queryset_from_cache(key)
 
 
 class IndexView(ArticleListView):
     def get_queryset_data(self):
-        article_list = Article.objects.filter(type='a', status='p')
-        return article_list
+        return Article.objects.filter(type='a', status='p')
 
     def get_queryset_cache_key(self):
-        cache_key = 'index_{page}'.format(page=self.page_number)
-        return cache_key
+        return 'index_{page}'.format(page=self.page_number)
 
 
 class ArticleDetailView(DetailView):
@@ -126,16 +120,16 @@ class CategoryDetailView(ArticleListView):
         categoryname = category.name
         self.categoryname = categoryname
         categorynames = list(map(lambda c: c.name, category.get_sub_categorys()))
-        article_list = Article.objects.filter(category__name__in=categorynames, status='p')
-        return article_list
+        return Article.objects.filter(category__name__in=categorynames, status='p')
 
     def get_queryset_cache_key(self):
         slug = self.kwargs['category_name']
         category = get_object_or_404(Category, slug=slug)
         categoryname = category.name
         self.categoryname = categoryname
-        cache_key = 'category_list_{categoryname}_{page}'.format(categoryname=categoryname, page=self.page_number)
-        return cache_key
+        return 'category_list_{categoryname}_{page}'.format(
+            categoryname=categoryname, page=self.page_number
+        )
 
     def get_context_data(self, **kwargs):
 
@@ -154,13 +148,13 @@ class AuthorDetailView(ArticleListView):
 
     def get_queryset_cache_key(self):
         author_name = self.kwargs['author_name']
-        cache_key = 'author_{author_name}_{page}'.format(author_name=author_name, page=self.page_number)
-        return cache_key
+        return 'author_{author_name}_{page}'.format(
+            author_name=author_name, page=self.page_number
+        )
 
     def get_queryset_data(self):
         author_name = self.kwargs['author_name']
-        article_list = Article.objects.filter(author__username=author_name)
-        return article_list
+        return Article.objects.filter(author__username=author_name)
 
     def get_context_data(self, **kwargs):
         author_name = self.kwargs['author_name']
@@ -188,16 +182,14 @@ class TagDetailView(ArticleListView):
         tag = get_object_or_404(Tag, slug=slug)
         tag_name = tag.name
         self.name = tag_name
-        article_list = Article.objects.filter(tags__name=tag_name)
-        return article_list
+        return Article.objects.filter(tags__name=tag_name)
 
     def get_queryset_cache_key(self):
         slug = self.kwargs['tag_name']
         tag = get_object_or_404(Tag, slug=slug)
         tag_name = tag.name
         self.name = tag_name
-        cache_key = 'tag_{tag_name}_{page}'.format(tag_name=tag_name, page=self.page_number)
-        return cache_key
+        return 'tag_{tag_name}_{page}'.format(tag_name=tag_name, page=self.page_number)
 
     def get_context_data(self, **kwargs):
         # tag_name = self.kwargs['tag_name']
@@ -217,42 +209,47 @@ class ArchivesView(ArticleListView):
         return Article.objects.filter(status='p').all()
 
     def get_queryset_cache_key(self):
-        cache_key = 'archives'
-        return cache_key
+        return 'archives'
 
 
 @csrf_exempt
 def fileupload(request):
-    if request.method == 'POST':
-        response = []
-        for filename in request.FILES:
-            timestr = datetime.datetime.now().strftime('%Y/%m/%d')
-            imgextensions = ['jpg', 'png', 'jpeg', 'bmp']
-            fname = u''.join(str(filename))
-
-            isimage = len([i for i in imgextensions if fname.find(i) >= 0]) > 0
-
-            basepath = r'/var/www/resource/{type}/{timestr}'.format(
-                type='files' if not isimage else 'image', timestr=timestr)
-            if settings.TESTING:
-                basepath = settings.BASE_DIR + '/uploads'
-            url = 'https://resource.lylinux.net/{type}/{timestr}/{filename}'.format(
-                type='files' if not isimage else 'image', timestr=timestr, filename=filename)
-            if not os.path.exists(basepath):
-                os.makedirs(basepath)
-            savepath = os.path.join(basepath, filename)
-            with open(savepath, 'wb+') as wfile:
-                for chunk in request.FILES[filename].chunks():
-                    wfile.write(chunk)
-            if isimage:
-                from PIL import Image
-                image = Image.open(savepath)
-                image.save(savepath, quality=20, optimize=True)
-            response.append(url)
-        return HttpResponse(response)
-
-    else:
+    if request.method != 'POST':
         return HttpResponse("only for post")
+    response = []
+    imgextensions = ['jpg', 'png', 'jpeg', 'bmp']
+    for filename in request.FILES:
+        timestr = datetime.datetime.now().strftime('%Y/%m/%d')
+        fname = u''.join(str(filename))
+
+        isimage = len([i for i in imgextensions if i in fname]) > 0
+
+        basepath = r'/var/www/resource/{type}/{timestr}'.format(
+            type='image' if isimage else 'files', timestr=timestr
+        )
+
+        if settings.TESTING:
+            basepath = f'{settings.BASE_DIR}/uploads'
+        url = (
+            'https://resource.lylinux.net/{type}/{timestr}/{filename}'.format(
+                type='image' if isimage else 'files',
+                timestr=timestr,
+                filename=filename,
+            )
+        )
+
+        if not os.path.exists(basepath):
+            os.makedirs(basepath)
+        savepath = os.path.join(basepath, filename)
+        with open(savepath, 'wb+') as wfile:
+            for chunk in request.FILES[filename].chunks():
+                wfile.write(chunk)
+        if isimage:
+            from PIL import Image
+            image = Image.open(savepath)
+            image.save(savepath, quality=20, optimize=True)
+        response.append(url)
+    return HttpResponse(response)
 
 
 @login_required
@@ -275,8 +272,15 @@ def page_not_found_view(request, exception, template_name='blog/error_page.html'
     if exception:
         logger.warn(exception)
     url = request.get_full_path()
-    return render(request, template_name,
-                  {'message': '哎呀，您访问的地址 ' + url + ' 是一个未知的地方。请点击首页看看别的？', 'statuscode': '404'}, status=404)
+    return render(
+        request,
+        template_name,
+        {
+            'message': f'哎呀，您访问的地址 {url} 是一个未知的地方。请点击首页看看别的？',
+            'statuscode': '404',
+        },
+        status=404,
+    )
 
 
 def server_error_view(request, template_name='blog/error_page.html'):

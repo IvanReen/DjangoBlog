@@ -68,10 +68,10 @@ class WBOauthManager(BaseOauthManager):
         params = {
             'client_id': self.client_id,
             'response_type': 'code',
-            'redirect_uri': self.callback_url + '&next_url=' + nexturl
+            'redirect_uri': f'{self.callback_url}&next_url={nexturl}',
         }
-        url = self.AUTH_URL + "?" + urllib.parse.urlencode(params)
-        return url
+
+        return f"{self.AUTH_URL}?{urllib.parse.urlencode(params)}"
 
     def get_access_token_by_code(self, code):
 
@@ -113,7 +113,7 @@ class WBOauthManager(BaseOauthManager):
                 user.email = datas['email']
             return user
         except:
-            logger.info('weibo oauth error.rsp:' + rsp)
+            logger.info(f'weibo oauth error.rsp:{rsp}')
             return None
 
 
@@ -136,9 +136,7 @@ class GoogleOauthManager(BaseOauthManager):
             'redirect_uri': self.callback_url,
             'scope': 'openid email',
         }
-        # url = self.AUTH_URL + "?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
-        url = self.AUTH_URL + "?" + urllib.parse.urlencode(params)
-        return url
+        return f"{self.AUTH_URL}?{urllib.parse.urlencode(params)}"
 
     def get_access_token_by_code(self, code):
         params = {
@@ -155,10 +153,10 @@ class GoogleOauthManager(BaseOauthManager):
         try:
             self.access_token = str(obj['access_token'])
             self.openid = str(obj['id_token'])
-            logger.info(self.ICON_NAME + ' oauth ' + rsp)
+            logger.info(f'{self.ICON_NAME} oauth {rsp}')
             return self.access_token
         except:
-            logger.info(self.ICON_NAME + ' oauth error ' + rsp)
+            logger.info(f'{self.ICON_NAME} oauth error {rsp}')
             return None
 
     def get_oauth_userinfo(self):
@@ -182,7 +180,7 @@ class GoogleOauthManager(BaseOauthManager):
                 user.email = datas['email']
             return user
         except:
-            logger.info('google oauth error.rsp:' + rsp)
+            logger.info(f'google oauth error.rsp:{rsp}')
             return None
 
 
@@ -202,12 +200,11 @@ class GitHubOauthManager(BaseOauthManager):
         params = {
             'client_id': self.client_id,
             'response_type': 'code',
-            'redirect_uri': self.callback_url + '&next_url=' + nexturl,
-            'scope': 'user'
+            'redirect_uri': f'{self.callback_url}&next_url={nexturl}',
+            'scope': 'user',
         }
-        # url = self.AUTH_URL + "?" + urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
-        url = self.AUTH_URL + "?" + urllib.parse.urlencode(params)
-        return url
+
+        return f"{self.AUTH_URL}?{urllib.parse.urlencode(params)}"
 
     def get_access_token_by_code(self, code):
         params = {
@@ -249,7 +246,7 @@ class GitHubOauthManager(BaseOauthManager):
 
             return user
         except:
-            logger.info('github oauth error.rsp:' + rsp)
+            logger.info(f'github oauth error.rsp:{rsp}')
             return None
 
 
@@ -272,8 +269,7 @@ class FaceBookOauthManager(BaseOauthManager):
             'redirect_uri': self.callback_url,  # + '&next_url=' + nexturl,
             'scope': 'email,public_profile'
         }
-        url = self.AUTH_URL + "?" + urllib.parse.urlencode(params)
-        return url
+        return f"{self.AUTH_URL}?{urllib.parse.urlencode(params)}"
 
     def get_access_token_by_code(self, code):
         params = {
@@ -325,7 +321,8 @@ def get_oauth_apps():
 
 def get_manager_by_type(type):
     applications = get_oauth_apps()
-    finds = list(filter(lambda x: x.ICON_NAME.lower() == type.lower(), applications))
-    if finds:
+    if finds := list(
+        filter(lambda x: x.ICON_NAME.lower() == type.lower(), applications)
+    ):
         return finds[0]
     return None

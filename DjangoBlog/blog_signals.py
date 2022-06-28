@@ -26,14 +26,13 @@ def article_save_callback(sender, **kwargs):
         obj = Category.objects.get(id=id)
     elif type == 'Tag':
         obj = Tag.objects.get(id=id)
-    if obj is not None:
-        if not settings.TESTING and not is_update_views:
-            try:
-                notify_url = obj.get_full_url()
-                SpiderNotify.baidu_notify([notify_url])
-            except Exception as ex:
-                logger.error("notify sipder", ex)
-                print(ex)
+    if obj is not None and not settings.TESTING and not is_update_views:
+        try:
+            notify_url = obj.get_full_url()
+            SpiderNotify.baidu_notify([notify_url])
+        except Exception as ex:
+            logger.error("notify sipder", ex)
+            print(ex)
 
 
 @receiver(comment_save_signal)
@@ -47,11 +46,9 @@ def comment_save_callback(sender, **kwargs):
     comment = Comment.objects.get(id=kwargs['comment_id'])
     site = Site.objects.get_current().domain
     article = comment.article
-    # if not settings.DEBUG:
-    if True:
-        subject = '感谢您发表的评论'
-        article_url = "https://{site}{path}".format(site=site, path=comment.article.get_absolute_url())
-        html_content = """
+    subject = '感谢您发表的评论'
+    article_url = "https://{site}{path}".format(site=site, path=comment.article.get_absolute_url())
+    html_content = """
         <p>非常感谢您在本站发表评论</p>
         您可以访问
         <a href="%s" rel="bookmark">%s</a>
@@ -61,23 +58,23 @@ def comment_save_callback(sender, **kwargs):
         如果上面链接无法打开，请将此链接复制至浏览器。
         %s
         """ % (article_url, comment.article.title, article_url)
-        tomail = comment.author.email
-        send_email([tomail], subject, html_content)
+    tomail = comment.author.email
+    send_email([tomail], subject, html_content)
 
-        if comment.parent_comment:
-            html_content = """
+    if comment.parent_comment:
+        html_content = """
             您在 <a href="%s" rel="bookmark">%s</a> 的评论 <br/> %s <br/> 收到回复啦.快去看看吧
             <br/>
             如果上面链接无法打开，请将此链接复制至浏览器。
             %s
             """ % (article_url, article.title, comment.parent_comment.body, article_url)
-            tomail = comment.parent_comment.author.email
-            send_email([tomail], subject, html_content)
+        tomail = comment.parent_comment.author.email
+        send_email([tomail], subject, html_content)
 
     path = article.get_absolute_url()
     site = Site.objects.get_current().domain
     if site.find(':') > 0:
-        site = site[0:site.find(':')]
+        site = site[:site.find(':')]
 
     expire_view_cache(path, servername=site, serverport=serverport, key_prefix='blogdetail')
     if cache.get('seo_processor'):

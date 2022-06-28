@@ -26,8 +26,16 @@ class UeditorPlugin(BaseAdminPlugin):
         return attrs
 
     def block_extrahead(self, context, nodes):
-        js = '<script type="text/javascript" src="%s"></script>' % (settings.STATIC_URL + "ueditor/ueditor.config.js")
-        js += '<script type="text/javascript" src="%s"></script>' % (settings.STATIC_URL + "ueditor/ueditor.all.min.js")
+        js = (
+            '<script type="text/javascript" src="%s"></script>'
+            % f"{settings.STATIC_URL}ueditor/ueditor.config.js"
+        )
+
+        js += (
+            '<script type="text/javascript" src="%s"></script>'
+            % f"{settings.STATIC_URL}ueditor/ueditor.all.min.js"
+        )
+
         nodes.append(js)
 
 xadmin.site.register_plugin(UeditorPlugin, DetailAdminView)

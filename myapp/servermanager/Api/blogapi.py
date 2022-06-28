@@ -19,8 +19,7 @@ class BlogApi():
         return Category.objects.all()
 
     def get_category_articles(self, categoryname):
-        articles = Article.objects.filter(category__name=categoryname)
-        if articles:
+        if articles := Article.objects.filter(category__name=categoryname):
             return articles[:self.__max_takecount__]
         return None
 

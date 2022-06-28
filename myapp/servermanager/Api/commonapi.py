@@ -11,8 +11,7 @@ class TuLing():
         self.__appid__ = 137762
 
     def __build_req_url(self, content):
-        return 'http://www.tuling123.com/openapi/api?key=%s&info=%s&userid=%s' % (
-            self.__key__, content, self.__appid__)
+        return f'http://www.tuling123.com/openapi/api?key={self.__key__}&info={content}&userid={self.__appid__}'
 
     def UserAgent(self, url):
         rsp = requests.get(url)

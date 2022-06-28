@@ -70,19 +70,17 @@ class LoginView(FormView):
     def form_valid(self, form):
         form = AuthenticationForm(data=self.request.POST, request=self.request)
 
-        if form.is_valid():
-            from DjangoBlog.utils import cache
-            if cache and cache is not None:
-                cache.clear()
-            print(self.redirect_field_name)
-            redirect_to = self.request.GET.get(self.redirect_field_name)
-            auth.login(self.request, form.get_user())
-            return super(LoginView, self).form_valid(form)
-            # return HttpResponseRedirect('/')
-        else:
+        if not form.is_valid():
             return self.render_to_response({
                 'form': form
             })
+        from DjangoBlog.utils import cache
+        if cache and cache is not None:
+            cache.clear()
+        print(self.redirect_field_name)
+        redirect_to = self.request.GET.get(self.redirect_field_name)
+        auth.login(self.request, form.get_user())
+        return super(LoginView, self).form_valid(form)
 
     def get_success_url(self):
         print(self.redirect_field_name)
